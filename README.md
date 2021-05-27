@@ -79,9 +79,7 @@ The priority order is as follows
 3. Default values
 
 ## Installation
-Use the following line in your imports        // go mod init
-        // go get
-        // go build
+Use the following line in your imports
 
 
 ```go
