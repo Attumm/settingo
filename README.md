@@ -16,9 +16,9 @@ Getting vars out has the same level of complexity as setting the value.
 - Simple to use
 - supports command line and environment variables 
 - Support for types: str, int, ~~bool~~, ~~map~~
-- Singleton, makes it easy to use in program anywhere in the codebase
+- Singleton, makes it easy to use in program anywhere in the code-base
 - Supports help text with --help on the binary
-- Ease of use in any enviroment examples: linux, docker, k8
+- Ease of use in any environment examples: linux, docker, k8
 
 
 ## Example
@@ -56,12 +56,12 @@ $ ./example
 foo = default value
 ```
 
-Running the binary with comamnd line input
+Running the binary with command line input
 ```sh
 $ ./example -FOO bar
 foo = bar
 ```
-Running the binary with environment varaibles
+Running the binary with environment variable
 ```sh
 $ FOO=ok;./example
 foo = ok
@@ -71,17 +71,15 @@ foo = ok
 
 ## Order of preference
 variables are set with preference
-variables on the command line will have highest prefference.
-This because while testing you might want to override enviroment 
+variables on the command line will have highest preference.
+This because while testing you might want to override environment
 The priority order is as follows
 1. Command line input
 2. Environment variables 
 3. Default values
 
 ## Installation
-Use the following line in your imports        // go mod init
-        // go get
-        // go build
+Use the following line in your imports
 
 
 ```go
@@ -98,5 +96,4 @@ or use the [example_project](https://github.com/Attumm/example_settingo) as star
 ## License
 
 MIT
-
 
