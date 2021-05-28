@@ -12,6 +12,7 @@ Getting vars out has the same level of complexity as setting the value.
  SETTINGS.Get("FOO")
 ```
 
+
 ## Features
 - Simple to use
 - supports command line and environment variables 
@@ -23,8 +24,6 @@ Getting vars out has the same level of complexity as setting the value.
 
 ## Example
 example of how to use. More can be found in the [example_project](https://github.com/Attumm/settingo_example_project/blob/main/main.go)
-
-```
 ```go
 package main
 
@@ -67,8 +66,6 @@ $ FOO=ok;./example
 foo = ok
 ```
 
-
-
 ## Order of preference
 variables are set with preference
 variables on the command line will have highest preference.
@@ -77,6 +74,7 @@ The priority order is as follows
 1. Command line input
 2. Environment variables 
 3. Default values
+
 
 ## Installation
 Use the following line in your imports
@@ -92,6 +90,7 @@ go get
 go build
 ```
 or use the [example_project](https://github.com/Attumm/example_settingo) as starting point.
+
 
 ## License
 
