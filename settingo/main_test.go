@@ -1,18 +1,24 @@
 package settingo
 
-import (
-	"os"
+import ( "os"
 	"testing"
+	"reflect"
 )
 
 func Test_types_default(t *testing.T) {
 	expected := "default_value_for_foobar"
 	expectedInt := 42
 	expectedBool := true
+	expectedMap := make(map[string][]string)
+
+	expectedMap["foo"] = []string{"bar"}
+	expectedMap["foo1"] = []string{"bar1", "bar2"}
+
 
 	SETTINGS.Set("FOOBAR", expected, "help text")
 	SETTINGS.SetInt("FOOBAR_INT", expectedInt, "help text")
 	SETTINGS.SetBool("FOOBAR_BOOL", expectedBool, "help text")
+	SETTINGS.SetMap("FOOBAR_MAP", expectedMap, "help text")
 
 	//SETTINGS.Parse()
 
@@ -30,6 +36,11 @@ func Test_types_default(t *testing.T) {
 	if foobarBool != expectedBool {
 		t.Error(foobarBool, " != ", expectedBool)
 	}
+
+	foobarMap := SETTINGS.GetMap("FOOBAR_MAP")
+	if !reflect.DeepEqual(foobarMap, expectedMap) {
+		t.Error(foobarMap, " != ", expectedMap)
+	}
 }
 
 func Test_types_os_env(t *testing.T) {
@@ -46,9 +57,17 @@ func Test_types_os_env(t *testing.T) {
 	expectedBool := true
 	defaultBool := false
 
+	os.Setenv("FOOBAR_MAP", "foo:bar;foo1:bar1,bar2")
+	expectedMap := make(map[string][]string)
+	defaultMap := make(map[string][]string)
+
+	expectedMap["foo"] = []string{"bar"}
+	expectedMap["foo1"] = []string{"bar1", "bar2"}
+
 	SETTINGS.Set("FOOBAR", defaultStr, "help text")
 	SETTINGS.SetInt("FOOBAR_INT", defaultInt, "help text")
 	SETTINGS.SetBool("FOOBAR_BOOL", defaultBool, "help text")
+	SETTINGS.SetMap("FOOBAR_MAP", defaultMap, "help text")
 
 	SETTINGS.Parse()
 

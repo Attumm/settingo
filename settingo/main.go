@@ -20,6 +20,7 @@ type Settings struct {
 	VarString  map[string]string
 	VarInt     map[string]int
 	VarBool    map[string]bool
+	VarMap	   map[string]map[string][]string
 	Parsers    map[string]func(string) string
 	ParsersInt map[string]func(int) int
 }
@@ -41,6 +42,11 @@ func (s *Settings) SetInt(flagName string, defaultVar int, message string) {
 func (s *Settings) SetBool(flagName string, defaultVar bool, message string) {
 	s.msg[flagName] = message
 	s.VarBool[flagName] = defaultVar
+}
+
+func (s *Settings) SetMap(flagName string, defaultVar map[string][]string, message string) {
+	s.msg[flagName] = message
+	s.VarMap[flagName] = defaultVar
 }
 
 func (s *Settings) SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
@@ -67,6 +73,10 @@ func (s Settings) GetBool(flagName string) bool {
 	return s.VarBool[flagName]
 }
 
+func (s Settings) GetMap(flagName string) map[string][]string {
+	return s.VarMap[flagName]
+}
+
 func (s *Settings) HandleCMDLineInput() {
 	parsedString := make(map[string]*string)
 	for key, val := range s.VarString {
@@ -81,6 +91,11 @@ func (s *Settings) HandleCMDLineInput() {
 	parsedBool := make(map[string]*string)
 	for key, val := range s.VarBool {
 		var newV = flag.String(key, strconv.FormatBool(val), s.msg[key])
+		parsedBool[key] = newV
+	}
+	parsedMap := make(map[string]*string)
+	for key, val := range s.VarMap {
+		var newV = flag.String(key, ParseMapToLine(val), s.msg[key])
 		parsedBool[key] = newV
 	}
 	flag.Parse()
@@ -101,6 +116,9 @@ func (s *Settings) HandleCMDLineInput() {
 	}
 	for key, val := range parsedBool {
 		s.VarBool[key] = truthiness(*val)
+	}
+	for key, val := range parsedMap {
+		s.VarMap[key] = ParseLineToMap(*val)
 	}
 }
 
@@ -125,6 +143,12 @@ func (s *Settings) HandleOSInput() {
 			s.VarBool[key] = truthiness(varEnv)
 		}
 	}
+	for key, _ := range s.VarMap {
+		varEnv, found := os.LookupEnv(key)
+		if found {
+			s.VarMap[key] = ParseLineToMap(varEnv)
+		}
+	}
 }
 
 func (s *Settings) Parse() {
@@ -136,6 +160,7 @@ var SETTINGS = Settings{
 	msg:        make(map[string]string),
 	VarString:  make(map[string]string),
 	VarInt:     make(map[string]int),
+	VarMap:     make(map[string]map[string][]string),
 	Parsers:    make(map[string]func(string) string),
 	ParsersInt: make(map[string]func(int) int),
 	VarBool:    make(map[string]bool),
