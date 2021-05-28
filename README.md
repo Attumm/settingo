@@ -16,7 +16,7 @@ Getting vars out has the same level of complexity as setting the value.
 ## Features
 - Simple to use
 - supports command line and environment variables 
-- Support for types: str, int, ~~bool~~, ~~map~~
+- Support for types: str, int, bool, ~~map~~
 - Singleton, makes it easy to use in program anywhere in the code-base
 - Supports help text with --help on the binary
 - Ease of use in any environment examples: linux, docker, k8
