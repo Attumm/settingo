@@ -75,6 +75,27 @@ The priority order is as follows
 2. Environment variables 
 3. Default values
 
+## Types
+Settingo supports different types.
+```go
+// string
+SETTINGS.Set("FOO", "default", "help text")
+SETTINGS.Get("FOO")
+
+// integer
+SETTINGS.SetInt("FOO", 42, "help text")
+SETTINGS.GetInt("FOO")
+
+// boolean
+SETTINGS.SetBool("FOO", true, "help text")
+SETTINGS.GetBool("FOO")
+
+// map
+defaultMap := make(map[string][]string)
+defaultMap["foo"] = []string{"bar"}
+SETTINGS.SetMap("FOO", defaultMap, "help text")
+SETTINGS.GetMap("FOO")
+```
 
 ## Installation
 Use the following line in your imports
