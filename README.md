@@ -33,7 +33,7 @@ import (
 )
 
 func main() {
-        SETTINGS.Set("FOO", "default value", "handy help text)
+        SETTINGS.Set("FOO", "default value", "handy help text")
         
         SETTINGS.Parse()
         fmt.Println("foobar =",  SETTINGS.Get("FOOBAR"))
