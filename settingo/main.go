@@ -123,13 +123,13 @@ func (s *Settings) HandleCMDLineInput() {
 }
 
 func (s *Settings) HandleOSInput() {
-	for key, _ := range s.VarString {
+	for key := range s.VarString {
 		varEnv, found := os.LookupEnv(key)
 		if found {
 			s.VarString[key] = varEnv
 		}
 	}
-	for key, _ := range s.VarInt {
+	for key := range s.VarInt {
 		varEnv, found := os.LookupEnv(key)
 		if found {
 			if num, err := strconv.Atoi(varEnv); err == nil {
@@ -137,13 +137,13 @@ func (s *Settings) HandleOSInput() {
 			}
 		}
 	}
-	for key, _ := range s.VarBool {
+	for key := range s.VarBool {
 		varEnv, found := os.LookupEnv(key)
 		if found {
 			s.VarBool[key] = truthiness(varEnv)
 		}
 	}
-	for key, _ := range s.VarMap {
+	for key := range s.VarMap {
 		varEnv, found := os.LookupEnv(key)
 		if found {
 			s.VarMap[key] = ParseLineToMap(varEnv)

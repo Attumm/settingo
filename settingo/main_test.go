@@ -1,8 +1,9 @@
 package settingo
 
-import ( "os"
-	"testing"
+import (
+	"os"
 	"reflect"
+	"testing"
 )
 
 func Test_types_default(t *testing.T) {
@@ -13,7 +14,6 @@ func Test_types_default(t *testing.T) {
 
 	expectedMap["foo"] = []string{"bar"}
 	expectedMap["foo1"] = []string{"bar1", "bar2"}
-
 
 	SETTINGS.Set("FOOBAR", expected, "help text")
 	SETTINGS.SetInt("FOOBAR_INT", expectedInt, "help text")
