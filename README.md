@@ -29,7 +29,7 @@ package main
 
 import (
         "fmt"
-        . "github.com/Attumm/settingo/settingo"
+        "github.com/Attumm/settingo/settingo"
 )
 
 func main() {
