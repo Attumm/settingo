@@ -97,21 +97,8 @@ settingo.SetMap("FOO", defaultMap, "help text")
 settingo.GetMap("FOO")
 ```
 
-## Installation
-Use the following line in your imports
-
-
-```go
-        . "github.com/Attumm/settingo/settingo"
-```
-then run the following commands
-```
-go mod init
-go get
-go build
-```
-or use the [example_project](https://github.com/Attumm/example_settingo) as starting point.
-
+## Example project
+Handy [example_project](https://github.com/Attumm/example_settingo) as starting point.
 
 ## License
 
