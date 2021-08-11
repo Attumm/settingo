@@ -5,11 +5,11 @@ Settings parses command line and environment variables on one line.
 And makes it available throughout the code base. Making using settings in your project as boring and unimportant as it should be.
 Settings vars is as simple as:
 ```go
- SETTINGS.Set("FOO", "default value", "help text")
+ settingo.Set("FOO", "default value", "help text")
 ```
 Getting vars out has the same level of complexity as setting the value.
 ```go
- SETTINGS.Get("FOO")
+ settingo.Get("FOO")
 ```
 
 
@@ -33,10 +33,10 @@ import (
 )
 
 func main() {
-        SETTINGS.Set("FOO", "default value", "handy help text")
+        settingo.Set("FOO", "default value", "handy help text")
         
-        SETTINGS.Parse()
-        fmt.Println("foobar =",  SETTINGS.Get("FOOBAR"))
+        settingo.Parse()
+        fmt.Println("foobar =",  settingo.Get("FOOBAR"))
 }
 ```
 The above go will produce binary that can be used as follows.
@@ -79,22 +79,22 @@ The priority order is as follows
 Settingo supports different types.
 ```go
 // string
-SETTINGS.Set("FOO", "default", "help text")
-SETTINGS.Get("FOO")
+settingo.Set("FOO", "default", "help text")
+settingo.Get("FOO")
 
 // integer
-SETTINGS.SetInt("FOO", 42, "help text")
-SETTINGS.GetInt("FOO")
+settingo.SetInt("FOO", 42, "help text")
+settingo.GetInt("FOO")
 
 // boolean
-SETTINGS.SetBool("FOO", true, "help text")
-SETTINGS.GetBool("FOO")
+settingo.SetBool("FOO", true, "help text")
+settingo.GetBool("FOO")
 
 // map
 defaultMap := make(map[string][]string)
 defaultMap["foo"] = []string{"bar"}
-SETTINGS.SetMap("FOO", defaultMap, "help text")
-SETTINGS.GetMap("FOO")
+settingo.SetMap("FOO", defaultMap, "help text")
+settingo.GetMap("FOO")
 ```
 
 ## Installation
