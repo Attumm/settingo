@@ -20,7 +20,7 @@ type Settings struct {
 	VarString  map[string]string
 	VarInt     map[string]int
 	VarBool    map[string]bool
-	VarMap	   map[string]map[string][]string
+	VarMap     map[string]map[string][]string
 	Parsers    map[string]func(string) string
 	ParsersInt map[string]func(int) int
 }
@@ -164,4 +164,51 @@ var SETTINGS = Settings{
 	Parsers:    make(map[string]func(string) string),
 	ParsersInt: make(map[string]func(int) int),
 	VarBool:    make(map[string]bool),
+}
+
+func Get(x string) string {
+	return SETTINGS.Get(x)
+}
+func Set(flagName, defaultVar, message string) {
+	SETTINGS.Set(flagName, defaultVar, message)
+}
+
+func SetString(flagName, defaultVar, message string) {
+	SETTINGS.Set(flagName, defaultVar, message)
+}
+
+func SetInt(flagName string, defaultVar int, message string) {
+	SETTINGS.SetInt(flagName, defaultVar, message)
+}
+
+func SetBool(flagName string, defaultVar bool, message string) {
+	SETTINGS.SetBool(flagName, defaultVar, message)
+}
+
+func SetMap(flagName string, defaultVar map[string][]string, message string) {
+	SETTINGS.SetMap(flagName, defaultVar, message)
+}
+
+func SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
+	SETTINGS.SetParsed(flagName, defaultVar, message, parserFunc)
+}
+
+func SetParsedInt(flagName, defaultVar, message string, parserFunc func(int) int) {
+	SETTINGS.SetParsedInt(flagName, defaultVar, message, parserFunc)
+}
+
+func GetInt(flagName string) int {
+	return SETTINGS.GetInt(flagName)
+}
+
+func GetBool(flagName string) bool {
+	return SETTINGS.GetBool(flagName)
+}
+
+func GetMap(flagName string) map[string][]string {
+	return SETTINGS.GetMap(flagName)
+}
+
+func Parse() {
+	SETTINGS.Parse()
 }
