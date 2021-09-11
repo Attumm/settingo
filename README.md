@@ -36,7 +36,7 @@ func main() {
         settingo.Set("FOO", "default value", "handy help text")
         
         settingo.Parse()
-        fmt.Println("foobar =",  settingo.Get("FOOBAR"))
+        fmt.Println("foo =",  settingo.Get("FOO"))
 }
 ```
 The above go will produce binary that can be used as follows.
