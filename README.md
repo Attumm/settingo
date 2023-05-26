@@ -97,6 +97,11 @@ settingo.SetMap("FOO", defaultMap, "help text")
 settingo.GetMap("FOO")
 ```
 
+## installation
+```bash
+go get "github.com/Attumm/settingo/settingo"
+```
+
 ## Example project
 Handy [example_project](https://github.com/Attumm/example_settingo) as starting point.
 
