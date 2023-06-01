@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func truthiness(s string) bool {
@@ -21,6 +22,7 @@ type Settings struct {
 	VarInt     map[string]int
 	VarBool    map[string]bool
 	VarMap     map[string]map[string][]string
+	VarSlice    map[string][]string
 	Parsers    map[string]func(string) string
 	ParsersInt map[string]func(int) int
 }
@@ -47,6 +49,14 @@ func (s *Settings) SetBool(flagName string, defaultVar bool, message string) {
 func (s *Settings) SetMap(flagName string, defaultVar map[string][]string, message string) {
 	s.msg[flagName] = message
 	s.VarMap[flagName] = defaultVar
+}
+
+func (s *Settings) SetSlice(flagName string, defaultVar []string, message string, sep string) {
+	if sep == "" {
+		sep = ","
+	}
+	s.msg[flagName] = message
+	s.VarSlice[flagName] = defaultVar
 }
 
 func (s *Settings) SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
@@ -77,6 +87,10 @@ func (s Settings) GetMap(flagName string) map[string][]string {
 	return s.VarMap[flagName]
 }
 
+func (s Settings) GetSlice(flagName string) []string {
+	return s.VarSlice[flagName]
+}
+
 func (s *Settings) HandleCMDLineInput() {
 	parsedString := make(map[string]*string)
 	for key, val := range s.VarString {
@@ -97,6 +111,11 @@ func (s *Settings) HandleCMDLineInput() {
 	for key, val := range s.VarMap {
 		var newV = flag.String(key, ParseMapToLine(val), s.msg[key])
 		parsedBool[key] = newV
+	}
+	parsedList := make(map[string]*string)
+	for key, val := range s.VarSlice {
+		var newV = flag.String(key, strings.Join(val, ","), s.msg[key])
+		parsedList[key] = newV
 	}
 	flag.Parse()
 
@@ -119,6 +138,10 @@ func (s *Settings) HandleCMDLineInput() {
 	}
 	for key, val := range parsedMap {
 		s.VarMap[key] = ParseLineToMap(*val)
+	}
+
+	for key, val := range parsedList {
+		s.VarSlice[key] = strings.Split(*val, ",")
 	}
 }
 
@@ -149,6 +172,12 @@ func (s *Settings) HandleOSInput() {
 			s.VarMap[key] = ParseLineToMap(varEnv)
 		}
 	}
+	for key := range s.VarSlice {
+		varEnv, found := os.LookupEnv(key)
+		if found {
+			s.VarSlice[key] = strings.Split(varEnv, ",")
+		}
+	}
 }
 
 func (s *Settings) Parse() {
@@ -161,6 +190,7 @@ var SETTINGS = Settings{
 	VarString:  make(map[string]string),
 	VarInt:     make(map[string]int),
 	VarMap:     make(map[string]map[string][]string),
+	VarSlice:    make(map[string][]string),
 	Parsers:    make(map[string]func(string) string),
 	ParsersInt: make(map[string]func(int) int),
 	VarBool:    make(map[string]bool),
@@ -189,6 +219,10 @@ func SetMap(flagName string, defaultVar map[string][]string, message string) {
 	SETTINGS.SetMap(flagName, defaultVar, message)
 }
 
+func SetSlice(flagName string, defaultVar []string, message string, sep string) {
+	SETTINGS.SetSlice(flagName, defaultVar, message, sep)
+}
+
 func SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
 	SETTINGS.SetParsed(flagName, defaultVar, message, parserFunc)
 }
@@ -207,6 +241,10 @@ func GetBool(flagName string) bool {
 
 func GetMap(flagName string) map[string][]string {
 	return SETTINGS.GetMap(flagName)
+}
+
+func GetSlice(flagName string) []string {
+	return SETTINGS.GetSlice(flagName)
 }
 
 func Parse() {
