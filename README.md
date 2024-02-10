@@ -12,15 +12,13 @@ Getting vars out has the same level of complexity as setting the value.
  settingo.Get("FOO")
 ```
 
-
 ## Features
-- Simple to use
-- supports command line and environment variables 
-- Support for types: str, int, bool, map
-- Singleton, makes it easy to use in program anywhere in the code-base
-- Supports help text with --help on the binary
-- Ease of use in any environment examples: linux, docker, k8
-
+- Simplicity: Set up settings within a single line of code.
+- Flexibility: Utilize command-line flags, environment variables, or defaults.
+- Typesafety: Seamlessly work with strings, integers, booleans, and maps.
+- Convenience: Global access with a singleton pattern.
+- User-friendly: Automatic --help flag generation for your applications.
+- Versatility: Works flawlessly in Linux, Docker, Kubernetes, and other environments.
 
 ## Example
 example of how to use. More can be found in the [example_project](https://github.com/Attumm/settingo_example_project/blob/main/main.go)
