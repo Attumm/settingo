@@ -101,7 +101,7 @@ go get "github.com/Attumm/settingo/settingo"
 ```
 
 ## Example project
-Handy [example_project](https://github.com/Attumm/example_settingo) as starting point.
+Handy [example_project](https://github.com/Attumm/settingo_example_project) as starting point.
 
 ## License
 
