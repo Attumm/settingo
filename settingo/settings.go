@@ -3,6 +3,7 @@ package settingo
 import (
 	"flag"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -22,7 +23,7 @@ type Settings struct {
 	VarInt     map[string]int
 	VarBool    map[string]bool
 	VarMap     map[string]map[string][]string
-	VarSlice    map[string][]string
+	VarSlice   map[string][]string
 	Parsers    map[string]func(string) string
 	ParsersInt map[string]func(int) int
 }
@@ -146,6 +147,7 @@ func (s *Settings) HandleCMDLineInput() {
 }
 
 func (s *Settings) HandleOSInput() {
+
 	for key := range s.VarString {
 		varEnv, found := os.LookupEnv(key)
 		if found {
@@ -185,68 +187,96 @@ func (s *Settings) Parse() {
 	s.HandleCMDLineInput()
 }
 
-var SETTINGS = Settings{
-	msg:        make(map[string]string),
-	VarString:  make(map[string]string),
-	VarInt:     make(map[string]int),
-	VarMap:     make(map[string]map[string][]string),
-	VarSlice:    make(map[string][]string),
-	Parsers:    make(map[string]func(string) string),
-	ParsersInt: make(map[string]func(int) int),
-	VarBool:    make(map[string]bool),
+func (s *Settings) ParseTo(to interface{}) {
+	s.LoadStruct(to)
+	s.Parse()
+	s.UpdateStruct(to)
 }
 
-func Get(x string) string {
-	return SETTINGS.Get(x)
-}
-func Set(flagName, defaultVar, message string) {
-	SETTINGS.Set(flagName, defaultVar, message)
+// LoadStruct registers a struct's fields with SETTINGS
+func (s *Settings) LoadStruct(cfg interface{}) {
+	val := reflect.ValueOf(cfg)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+	typ := val.Type()
+
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		value := val.Field(i)
+		name := strings.ToUpper(field.Name)
+		help := field.Tag.Get("settingo")
+
+		switch value.Kind() {
+		case reflect.String:
+			s.SetString(name, value.String(), help)
+		case reflect.Int:
+			s.SetInt(name, int(value.Int()), help)
+		case reflect.Bool:
+			s.SetBool(name, value.Bool(), help)
+		case reflect.Slice:
+			if value.Type().Elem().Kind() == reflect.String {
+				slice := make([]string, value.Len())
+				for i := 0; i < value.Len(); i++ {
+					slice[i] = value.Index(i).String()
+				}
+				s.SetSlice(name, slice, help, "")
+			}
+		case reflect.Map:
+			if value.Type().Key().Kind() == reflect.String &&
+				value.Type().Elem().Kind() == reflect.Slice &&
+				value.Type().Elem().Elem().Kind() == reflect.String {
+				m := value.Interface().(map[string][]string)
+				s.SetMap(name, m, help)
+			}
+		}
+	}
 }
 
-func SetString(flagName, defaultVar, message string) {
-	SETTINGS.Set(flagName, defaultVar, message)
-}
+// UpdateStruct updates a struct with values from SETTINGS after Parse()
+func (s *Settings) UpdateStruct(cfg interface{}) {
+	val := reflect.ValueOf(cfg)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+	typ := val.Type()
 
-func SetInt(flagName string, defaultVar int, message string) {
-	SETTINGS.SetInt(flagName, defaultVar, message)
-}
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		value := val.Field(i)
+		name := strings.ToUpper(field.Name)
 
-func SetBool(flagName string, defaultVar bool, message string) {
-	SETTINGS.SetBool(flagName, defaultVar, message)
-}
-
-func SetMap(flagName string, defaultVar map[string][]string, message string) {
-	SETTINGS.SetMap(flagName, defaultVar, message)
-}
-
-func SetSlice(flagName string, defaultVar []string, message string, sep string) {
-	SETTINGS.SetSlice(flagName, defaultVar, message, sep)
-}
-
-func SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
-	SETTINGS.SetParsed(flagName, defaultVar, message, parserFunc)
-}
-
-func SetParsedInt(flagName, defaultVar, message string, parserFunc func(int) int) {
-	SETTINGS.SetParsedInt(flagName, defaultVar, message, parserFunc)
-}
-
-func GetInt(flagName string) int {
-	return SETTINGS.GetInt(flagName)
-}
-
-func GetBool(flagName string) bool {
-	return SETTINGS.GetBool(flagName)
-}
-
-func GetMap(flagName string) map[string][]string {
-	return SETTINGS.GetMap(flagName)
-}
-
-func GetSlice(flagName string) []string {
-	return SETTINGS.GetSlice(flagName)
-}
-
-func Parse() {
-	SETTINGS.Parse()
+		switch value.Kind() {
+		case reflect.String:
+			value.SetString(s.Get(name))
+		case reflect.Int:
+			value.SetInt(int64(s.GetInt(name)))
+		case reflect.Bool:
+			value.SetBool(s.GetBool(name))
+		case reflect.Slice:
+			if value.Type().Elem().Kind() == reflect.String {
+				slice := s.GetSlice(name)
+				newSlice := reflect.MakeSlice(value.Type(), len(slice), len(slice))
+				for i, s := range slice {
+					newSlice.Index(i).SetString(s)
+				}
+				value.Set(newSlice)
+			}
+		case reflect.Map:
+			if value.Type().Key().Kind() == reflect.String &&
+				value.Type().Elem().Kind() == reflect.Slice &&
+				value.Type().Elem().Elem().Kind() == reflect.String {
+				m := s.GetMap(name)
+				newMap := reflect.MakeMap(value.Type())
+				for k, v := range m {
+					sliceValue := reflect.MakeSlice(value.Type().Elem(), len(v), len(v))
+					for i, s := range v {
+						sliceValue.Index(i).SetString(s)
+					}
+					newMap.SetMapIndex(reflect.ValueOf(k), sliceValue)
+				}
+				value.Set(newMap)
+			}
+		}
+	}
 }

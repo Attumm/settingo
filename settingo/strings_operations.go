@@ -12,7 +12,7 @@ const VAL_SEP = ","
 const KEY_SEP = ":"
 
 // should refactor to use error.
-// Now I gotta go fast
+// Sanic gotta go fast
 func parseKeyValue(s string) (string, []string, bool) {
 	items := strings.Split(s, KEY_SEP)
 	if len(items) != 2 {
