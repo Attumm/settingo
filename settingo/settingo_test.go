@@ -7,10 +7,10 @@ import (
 )
 
 type TestConfig struct {
-	Foobar     string              `settingo:"help text"`
-	FoobarInt  int                 `settingo:"help text"`
-	FoobarBool bool                `settingo:"help text"`
-	FoobarMap  map[string][]string `settingo:"help text"`
+	Foobar     string              `settingo:"help text for foobar"`
+	FoobarInt  int                 `settingo:"help text for FoobarInt"`
+	FoobarBool bool                `settingo:"help text for FoobarBool"`
+	FoobarMap  map[string][]string `settingo:"help text FoobarMap"`
 }
 
 func Test_struct_types_default(t *testing.T) {
@@ -30,7 +30,7 @@ func Test_struct_types_default(t *testing.T) {
 		FoobarMap:  expectedMap,
 	}
 
-	SETTINGS.ParseTo(config)
+	SETTINGS.LoadStruct(config)
 
 	if config.Foobar != expected {
 		t.Error(config.Foobar, " != ", expected)
@@ -51,10 +51,10 @@ func Test_struct_types_default(t *testing.T) {
 }
 
 type ExampleConfig struct {
-	Foobar     string              `settingo:"help text"`
-	FoobarInt  int                 `settingo:"help text"`
-	FoobarBool bool                `settingo:"help text"`
-	FoobarMap  map[string][]string `settingo:"help text"`
+	Foobar     string              `settingo:"help text for foobar"`
+	FoobarInt  int                 `settingo:"help text for FoobarInt"`
+	FoobarBool bool                `settingo:"help text for FoobarBool"`
+	FoobarMap  map[string][]string `settingo:"help text FoobarMap"`
 }
 
 func Test_struct_types_os_env(t *testing.T) {
