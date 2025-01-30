@@ -26,6 +26,58 @@ example of how to use. More can be found in the [example_project](https://github
 package main
 
 import (
+	"fmt"
+	"github.com/Attumm/settingo/settingo"
+)
+
+// Define your configuration
+type Config struct {
+	APIKey    string `settingo:"API key for authentication"`
+	UploadDir string `settingo:"Directory for file uploads"`
+	Port      string `settingo:"Port to run the server on"`
+	Quality   int    `settingo:"WebP quality (0-100)"`
+}
+
+func main() {
+	// Initialize with default values
+	config := &Config{
+		APIKey:    "foo-bar",
+		UploadDir: "./uploads",
+		Port:      "8080",
+		Quality:   85,
+	}
+
+	// Parse command-line flags and environment variables into your config
+	settingo.ParseTo(config)
+
+	// Now config fields will be updated according to:
+	// 1. Command-line flags
+	// 2. Environment variables
+	// 3. Struct defaults
+	fmt.Println("APIKey   =", config.APIKey)
+	fmt.Println("UploadDir=", config.UploadDir)
+	fmt.Println("Port     =", config.Port)
+	fmt.Println("Quality  =", config.Quality)
+}
+
+```
+When you build your application (e.g., go build -o myapp) and run ./myapp --help, settingo automatically generates help text based on struct tags and default values:
+```bash
+Usage of ./myapp:
+  -APIKEY string
+        API key for authentication (default "foo-bar")
+  -PORT string
+        Port to run the server on (default "8080")
+  -QUALITY int
+        WebP quality (0-100) (default 85)
+  -UPLOADDIR string
+        Directory for file uploads (default "./uploads")
+```
+
+```go
+package main
+
+import (
         "fmt"
         "github.com/Attumm/settingo/settingo"
 )
