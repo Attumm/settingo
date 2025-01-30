@@ -27,7 +27,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/Attumm/settingo/settingo"
 )
 
@@ -49,7 +48,7 @@ func main() {
 	}
 
 	// Parse command-line flags and environment variables into your config
-	settingo.Parse(config)
+	settingo.ParseTo(config)
 
 	// Now config fields will be updated according to:
 	// 1. Command-line flags
@@ -65,14 +64,14 @@ func main() {
 When you build your application (e.g., go build -o myapp) and run ./myapp --help, settingo automatically generates help text based on struct tags and default values:
 ```bash
 Usage of ./myapp:
--APIKey string
-API key for authentication (default "foo-bar")
--UploadDir string
-Directory for file uploads (default "./uploads")
--Port string
-Port to run the server on (default "8080")
--Quality int
-WebP quality (0-100) (default 85)
+  -APIKEY string
+        API key for authentication (default "foo-bar")
+  -PORT string
+        Port to run the server on (default "8080")
+  -QUALITY int
+        WebP quality (0-100) (default 85)
+  -UPLOADDIR string
+        Directory for file uploads (default "./uploads")
 ```
 
 ```go
