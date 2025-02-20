@@ -1,4 +1,8 @@
 # Settingo
+[![Go Reference](https://pkg.go.dev/badge/github.com/Attumm/settingo/settingo.svg)](https://pkg.go.dev/github.com/Attumm/settingo/settingo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Attumm/settingo)](https://goreportcard.com/report/github.com/Attumm/settingo)
+
+
 ## _Settings should be simple, and with settingo it is._
 
 Settings parses command line and environment variables on one line.
