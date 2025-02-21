@@ -1,25 +1,37 @@
 # Settingo
-[![Go Reference](https://pkg.go.dev/badge/github.com/Attumm/settingo/settingo.svg)](https://pkg.go.dev/github.com/Attumm/settingo/settingo)
+[![GitHub release](https://img.shields.io/github/v/release/Attumm/settingo?sort=semver)](https://github.com/Attumm/settingo/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Attumm/settingo)](https://goreportcard.com/report/github.com/Attumm/settingo)
+[![CI](https://github.com/Attumm/settingo/actions/workflows/ci.yml/badge.svg)](https://github.com/Attumm/settingo/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/Attumm/settingo/branch/main/graph/badge.svg)](https://codecov.io/gh/Attumm/settingo)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Attumm/settingo/settingo.svg)](https://pkg.go.dev/github.com/Attumm/settingo/settingo)
 
 ## _Settings should be simple, and with settingo it is._
 
-Settings parses command line and environment variables on one line.
-And makes it available throughout the code base. Making using settings in your project as boring and unimportant as it should be.
-Settings vars is as simple as:
+Settingo parses command line and environment variables, all within one tool.
+Setting up settings is as simple as creating a struct with helpful messages for your project and --help on the CLI.
 ```go
- settingo.Set("FOO", "default value", "help text")
+type Config struct {
+    APIKey    string `settingo:"API key for authentication"`
+}
+
+func main()  {
+    config := Config{
+        APIKey:    "foo-bar",
+    }
+    settingo.ParseTo(config)
+}
 ```
-Getting vars out has the same level of complexity as setting the value.
+
+Now the struct will hold always hold value, either default, environment var, cli. based on the context making settings simple.
+Letting you focus on your project.
 ```go
- settingo.Get("FOO")
+config.APIKey
 ```
 
 ## Features
 - Simplicity: Set up settings within a single line of code.
 - Flexibility: Utilize command-line flags, environment variables, or defaults.
-- Typesafety: Seamlessly work with strings, integers, booleans, and maps.
+- Typesafety: Seamlessly work with strings, integers, slices, booleans, and maps.
 - Convenience: Global access with a singleton pattern.
 - User-friendly: Automatic --help flag generation for your applications.
 - Versatility: Works flawlessly in Linux, Docker, Kubernetes, and other environments.
@@ -34,48 +46,55 @@ import (
 	"github.com/Attumm/settingo/settingo"
 )
 
-// Define your configuration
+// Define your configuration with various types and help messages
 type Config struct {
-	APIKey    string `settingo:"API key for authentication"`
-	UploadDir string `settingo:"Directory for file uploads"`
-	Port      string `settingo:"Port to run the server on"`
-	Quality   int    `settingo:"WebP quality (0-100)"`
+	APIKey         string              `settingo:"API key for authentication"`
+	Port           int                 `settingo:"Port to run the server on"`
+	Verbose        bool                `settingo:"Enable verbose output"`
+	Hosts          []string            `settingo:"List of allowed hosts (comma-separated)"`
+	Items          []string            `settingo:"List of items (pipe-separated, sep=|)" settingo:"sep=|"`
+	Headers        map[string][]string `settingo:"HTTP headers to include (key:value1,value2;key2:value3 format)"`
 }
 
 func main() {
-	// Initialize with default values
+	// Initialize config with default values
 	config := &Config{
-		APIKey:    "foo-bar",
-		UploadDir: "./uploads",
-		Port:      "8080",
-		Quality:   85,
+		APIKey:         "foo-bar",
+		Port:           8080,
+		Verbose:        true,
+		Hosts:          []string{"localhost", "127.0.0.1"},
+		Items:          []string{"alpha", "beta", "gamma"},
+		Headers:        map[string][]string{"Accept": {"application/json"}},
 	}
 
-	// Parse command-line flags and environment variables into your config
+	// Parse command-line flags and environment variables into config
 	settingo.ParseTo(config)
 
-	// Now config fields will be updated according to:
-	// 1. Command-line flags
-	// 2. Environment variables
-	// 3. Struct defaults
-	fmt.Println("APIKey   =", config.APIKey)
-	fmt.Println("UploadDir=", config.UploadDir)
-	fmt.Println("Port     =", config.Port)
-	fmt.Println("Quality  =", config.Quality)
+	// Print out the configuration values
+	fmt.Println("Configuration:")
+	fmt.Println("APIKey      =", config.APIKey)
+	fmt.Println("Port        =", config.Port)
+	fmt.Println("Verbose     =", config.Verbose)
+	fmt.Println("Headers     =", config.Headers)
+	fmt.Println("Hosts       =", config.Hosts)
+	fmt.Println("Items       =", config.Items)
 }
-
 ```
 When you build your application (e.g., go build -o myapp) and run ./myapp --help, settingo automatically generates help text based on struct tags and default values:
 ```bash
 Usage of ./myapp:
   -APIKEY string
         API key for authentication (default "foo-bar")
-  -PORT string
-        Port to run the server on (default "8080")
-  -QUALITY int
-        WebP quality (0-100) (default 85)
-  -UPLOADDIR string
-        Directory for file uploads (default "./uploads")
+  -HEADERS string
+        HTTP headers to include (key:value1,value2;key2:value3 format) (default "Accept:application/json")
+  -HOSTS string
+        List of allowed hosts (comma-separated) (default "localhost,127.0.0.1")
+  -ITEMS string
+        List of items (pipe-separated, sep=|) (default "alpha,beta,gamma")
+  -PORT int
+        Port to run the server on (default 8080)
+  -VERBOSE string
+        Enable verbose output (default "true")
 ```
 
 ```go
@@ -129,26 +148,51 @@ The priority order is as follows
 2. Environment variables 
 3. Default values
 
-## Types
-Settingo supports different types.
+## Example: Custom Parsing for "Messy" Input with `SetParsed`
+
+Sometimes, environment variables or command-line arguments might not be perfectly formatted.  You might receive an empty string, mixed-case input, or data that needs transformation.  `settingo`'s `SetParsed` is ideal for cleaning up and standardizing such "messy" input.
+
+This example demonstrates handling a `RAW_USERNAME` environment variable, ensuring the `Username` setting is always a lowercase, non-empty string, defaulting to "anonymous" if the input is blank:
+
 ```go
-// string
-settingo.Set("FOO", "default", "help text")
-settingo.Get("FOO")
+package main
 
-// integer
-settingo.SetInt("FOO", 42, "help text")
-settingo.GetInt("FOO")
+import (
+    "fmt"
+	"github.com/Attumm/settingo/settingo"
+    "strings"
+)
 
-// boolean
-settingo.SetBool("FOO", true, "help text")
-settingo.GetBool("FOO")
+// Define your configuration with Parsed setting
+type Config struct {
+    Username string `settingo:"USERNAME for application access"`
+}
 
-// map
-defaultMap := make(map[string][]string)
-defaultMap["foo"] = []string{"bar"}
-settingo.SetMap("FOO", defaultMap, "help text")
-settingo.GetMap("FOO")
+func main() {
+    config := &Config{
+        Username: "default",
+    }
+
+    // Use SetParsed to handle potentially messy Username input
+    settingo.SetParsed("USERNAME", "default", "Username for application access", func(input string) string {
+        if input == "" {
+            return "anonymous" // Default to "anonymous" if empty input
+        }
+        return strings.ToLower(input) // Convert username to lowercase
+    })
+	
+    settingo.ParseTo(config)
+    fmt.Println("Configured Username:", config.Username)
+}
+```
+
+```bash
+$./example
+Configured Username: default
+$ ./example --USERNAME ''
+Configured Username: anonymous
+$ ./example --USERNAME FOOBAR
+Configured Username: foobar
 ```
 
 ## installation
@@ -160,6 +204,4 @@ go get "github.com/Attumm/settingo/settingo"
 Handy [example_project](https://github.com/Attumm/settingo_example_project) as starting point.
 
 ## License
-
 MIT
-
