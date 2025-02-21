@@ -1,12 +1,12 @@
-name: Race Detection Tests
+name: Unit Test Detection Tests
 on:
   push:
-    branches: [ main ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ main ]
+    branches: [ '*' ]
 jobs:
   test:
-    name: Race Detector
+    name: Unit Test Detection Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
