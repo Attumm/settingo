@@ -28,7 +28,7 @@ func ParseLineToMap(s string) map[string][]string {
 	for _, item := range items {
 		key, values, err := parseKeyValue(item)
 		if err {
-			fmt.Println("Unable to parse line, discarded:", item)
+			fmt.Println("Settingo: Unable to parse line, discarded:", item)
 			continue
 		}
 		parsed[key] = values
