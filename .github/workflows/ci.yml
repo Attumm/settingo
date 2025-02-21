@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 jobs:
   test:
-    name: Test and Coverage
+    name: CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
