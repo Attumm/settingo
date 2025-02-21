@@ -1,7 +1,7 @@
 # Settingo
 [![Go Reference](https://pkg.go.dev/badge/github.com/Attumm/settingo/settingo.svg)](https://pkg.go.dev/github.com/Attumm/settingo/settingo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Attumm/settingo)](https://goreportcard.com/report/github.com/Attumm/settingo)
-
+[![codecov](https://codecov.io/gh/Attumm/settingo/branch/main/graph/badge.svg)](https://codecov.io/gh/Attumm/settingo)
 
 ## _Settings should be simple, and with settingo it is._
 

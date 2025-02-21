@@ -78,3 +78,103 @@ func TestParseEnvStringToFlatten(t *testing.T) {
 		}
 	}
 }
+
+func TestParseKeyValueErrors(t *testing.T) {
+	testcases := []struct {
+		name     string
+		input    string
+		wantKey  string
+		wantVals []string
+		wantErr  bool
+	}{
+		{
+			name:     "missing separator",
+			input:    "foobla",
+			wantKey:  "",
+			wantVals: nil,
+			wantErr:  true,
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			wantKey:  "",
+			wantVals: nil,
+			wantErr:  true,
+		},
+		{
+			name:     "multiple key separators",
+			input:    "foo:bar:baz",
+			wantKey:  "",
+			wantVals: nil,
+			wantErr:  true,
+		},
+		{
+			name:     "only separator",
+			input:    ":",
+			wantKey:  "",
+			wantVals: []string{""},
+			wantErr:  false,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			gotKey, gotVals, gotErr := parseKeyValue(tc.input)
+			if gotErr != tc.wantErr {
+				t.Errorf("parseKeyValue(%q) error = %v, want %v", tc.input, gotErr, tc.wantErr)
+			}
+			if gotKey != tc.wantKey {
+				t.Errorf("parseKeyValue(%q) key = %q, want %q", tc.input, gotKey, tc.wantKey)
+			}
+			if !reflect.DeepEqual(gotVals, tc.wantVals) {
+				t.Errorf("parseKeyValue(%q) vals = %v, want %v", tc.input, gotVals, tc.wantVals)
+			}
+		})
+	}
+}
+
+func TestParseLineToMapErrors(t *testing.T) {
+	testcases := []struct {
+		name  string
+		input string
+		want  map[string][]string
+	}{
+		{
+			name:  "single invalid item",
+			input: "invalid",
+			want:  map[string][]string{},
+		},
+		{
+			name:  "mix of valid and invalid items",
+			input: "foo:bar;invalid;baz:qux",
+			want: map[string][]string{
+				"foo": {"bar"},
+				"baz": {"qux"},
+			},
+		},
+		{
+			name:  "multiple invalid items",
+			input: "invalid1;invalid2;invalid3",
+			want:  map[string][]string{},
+		},
+		{
+			name:  "empty input",
+			input: "",
+			want:  map[string][]string{},
+		},
+		{
+			name:  "only delimiters",
+			input: ";;;",
+			want:  map[string][]string{},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := ParseLineToMap(tc.input)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("ParseLineToMap(%q) = %v, want %v", tc.input, got, tc.want)
+			}
+		})
+	}
+}
