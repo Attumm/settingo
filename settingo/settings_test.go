@@ -8,13 +8,14 @@ import (
 )
 
 type TestConfig struct {
-	Foobar         string              `settingo:"help text for foobar"`
-	FoobarInt      int                 `settingo:"help text for FoobarInt"`
-	FoobarBool     bool                `settingo:"help text for FoobarBool"`
-	FoobarMap      map[string][]string `settingo:"help text FoobarMap"`
-	FoobarSlice    []string            `settingo:"help text for FoobarSlice"`
-	FoobarSliceSep []string            `settingo:"sep=; help text for FoobarSliceSep"`
-	FooParse       string              `settingo:"help text for FooParse"`
+	Foobar              string              `settingo:"help text for foobar"`
+	FoobarInt           int                 `settingo:"help text for FoobarInt"`
+	FoobarBool          bool                `settingo:"help text for FoobarBool"`
+	FoobarMap           map[string][]string `settingo:"help text FoobarMap"`
+	FoobarSlice         []string            `settingo:"help text for FoobarSlice"`
+	FoobarSliceSep      []string            `settingo:"sep=; help text for FoobarSliceSep"`
+	FoobarSliceEmptySep []string            `settingo:"help text for FoobarSliceEmptySep"`
+	FooParse            string              `settingo:"help text for FooParse"`
 }
 
 func Test_struct_types_default(t *testing.T) {
@@ -33,6 +34,9 @@ func Test_struct_types_default(t *testing.T) {
 	os.Setenv("FOOBARSLICESEP", "itemA;itemB;itemC")
 	expectedSliceSep := []string{"itemA", "itemB", "itemC"}
 
+	os.Setenv("FOOBARSLICEEMPTYSEP", "valA,valB,valC")
+	expectedSliceEmptySep := []string{"valA", "valB", "valC"}
+
 	os.Setenv("FOOPARSE", "postgres://user:pass@database.example.com:5432/mydb")
 	expectedFooParse := "database.example.com"
 
@@ -46,13 +50,14 @@ func Test_struct_types_default(t *testing.T) {
 	})
 
 	config := &TestConfig{
-		Foobar:         expected,
-		FoobarInt:      expectedInt,
-		FoobarBool:     expectedBool,
-		FoobarMap:      expectedMap,
-		FoobarSlice:    expectedSlice,
-		FoobarSliceSep: expectedSliceSep,
-		FooParse:       expectedFooParse,
+		Foobar:              expected,
+		FoobarInt:           expectedInt,
+		FoobarBool:          expectedBool,
+		FoobarMap:           expectedMap,
+		FoobarSlice:         expectedSlice,
+		FoobarSliceSep:      expectedSliceSep,
+		FoobarSliceEmptySep: expectedSliceEmptySep,
+		FooParse:            expectedFooParse,
 	}
 
 	SETTINGS.LoadStruct(config)
@@ -79,6 +84,10 @@ func Test_struct_types_default(t *testing.T) {
 
 	if !reflect.DeepEqual(config.FoobarSliceSep, expectedSliceSep) {
 		t.Error(config.FoobarSliceSep, " != ", expectedSliceSep)
+	}
+
+	if !reflect.DeepEqual(config.FoobarSliceEmptySep, expectedSliceEmptySep) {
+		t.Error(config.FoobarSliceEmptySep, " != ", expectedSliceEmptySep)
 	}
 
 	if config.FooParse != expectedFooParse {
