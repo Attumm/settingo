@@ -18,14 +18,15 @@ func truthiness(s string) bool {
 }
 
 type Settings struct {
-	msg        map[string]string
-	VarString  map[string]string
-	VarInt     map[string]int
-	VarBool    map[string]bool
-	VarMap     map[string]map[string][]string
-	VarSlice   map[string][]string
-	Parsers    map[string]func(string) string
-	ParsersInt map[string]func(int) int
+	msg         map[string]string
+	VarString   map[string]string
+	VarInt      map[string]int
+	VarBool     map[string]bool
+	VarMap      map[string]map[string][]string
+	VarSlice    map[string][]string
+	VarSliceSep map[string]string
+	Parsers     map[string]func(string) string
+	ParsersInt  map[string]func(int) int
 }
 
 func (s *Settings) Set(flagName, defaultVar, message string) {
@@ -58,6 +59,7 @@ func (s *Settings) SetSlice(flagName string, defaultVar []string, message string
 	}
 	s.msg[flagName] = message
 	s.VarSlice[flagName] = defaultVar
+	s.VarSliceSep[flagName] = sep
 }
 
 func (s *Settings) SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
@@ -113,10 +115,10 @@ func (s *Settings) HandleCMDLineInput() {
 		var newV = flag.String(key, ParseMapToLine(val), s.msg[key])
 		parsedBool[key] = newV
 	}
-	parsedList := make(map[string]*string)
+	parsedSlice := make(map[string]*string)
 	for key, val := range s.VarSlice {
-		var newV = flag.String(key, strings.Join(val, ","), s.msg[key])
-		parsedList[key] = newV
+		var newV = flag.String(key, strings.Join(val, s.VarSliceSep[key]), s.msg[key])
+		parsedSlice[key] = newV
 	}
 	flag.Parse()
 
@@ -141,8 +143,8 @@ func (s *Settings) HandleCMDLineInput() {
 		s.VarMap[key] = ParseLineToMap(*val)
 	}
 
-	for key, val := range parsedList {
-		s.VarSlice[key] = strings.Split(*val, ",")
+	for key, val := range parsedSlice {
+		s.VarSlice[key] = strings.Split(*val, s.VarSliceSep[key])
 	}
 }
 
@@ -177,7 +179,7 @@ func (s *Settings) HandleOSInput() {
 	for key := range s.VarSlice {
 		varEnv, found := os.LookupEnv(key)
 		if found {
-			s.VarSlice[key] = strings.Split(varEnv, ",")
+			s.VarSlice[key] = strings.Split(varEnv, s.VarSliceSep[key])
 		}
 	}
 }
@@ -220,7 +222,7 @@ func (s *Settings) LoadStruct(cfg interface{}) {
 				for i := 0; i < value.Len(); i++ {
 					slice[i] = value.Index(i).String()
 				}
-				s.SetSlice(name, slice, help, "")
+				s.SetSlice(name, slice, help, s.VarSliceSep[name])
 			}
 		case reflect.Map:
 			if value.Type().Key().Kind() == reflect.String &&
