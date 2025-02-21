@@ -1,14 +1,15 @@
 package settingo
 
 var SETTINGS = Settings{
-	msg:        make(map[string]string),
-	VarString:  make(map[string]string),
-	VarInt:     make(map[string]int),
-	VarMap:     make(map[string]map[string][]string),
-	VarSlice:   make(map[string][]string),
-	Parsers:    make(map[string]func(string) string),
-	ParsersInt: make(map[string]func(int) int),
-	VarBool:    make(map[string]bool),
+	msg:         make(map[string]string),
+	VarString:   make(map[string]string),
+	VarInt:      make(map[string]int),
+	VarMap:      make(map[string]map[string][]string),
+	VarSlice:    make(map[string][]string),
+	VarSliceSep: make(map[string]string),
+	Parsers:     make(map[string]func(string) string),
+	ParsersInt:  make(map[string]func(int) int),
+	VarBool:     make(map[string]bool),
 }
 
 func Get(x string) string {

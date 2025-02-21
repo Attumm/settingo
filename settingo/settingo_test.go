@@ -8,13 +8,14 @@ import (
 )
 
 type ExampleConfig struct {
-	Foobar      string              `settingo:"help text for foobar"`
-	FoobarInt   int                 `settingo:"help text for FoobarInt"`
-	FoobarBool  bool                `settingo:"help text for FoobarBool"`
-	FoobarMap   map[string][]string `settingo:"help text FoobarMap"`
-	FoobarSlice []string            `settingo:"help text for FoobarSlice"`
-	FooParse    string              `settingo:"help text for FooParse"`
-	FooParseInt int                 `settingo:"help text for FooParseInt"`
+	Foobar         string              `settingo:"help text for foobar"`
+	FoobarInt      int                 `settingo:"help text for FoobarInt"`
+	FoobarBool     bool                `settingo:"help text for FoobarBool"`
+	FoobarMap      map[string][]string `settingo:"help text FoobarMap"`
+	FoobarSlice    []string            `settingo:"help text for FoobarSlice"`
+	FoobarSliceSep []string            `settingo:"sep=; help text for FoobarSliceSep"`
+	FooParse       string              `settingo:"help text for FooParse"`
+	FooParseInt    int                 `settingo:"help text for FooParseInt"`
 }
 
 func Test_struct_types_os_env(t *testing.T) {
@@ -41,6 +42,10 @@ func Test_struct_types_os_env(t *testing.T) {
 	expectedSlice := []string{"item1", "item2", "item3"}
 	defaultSlice := []string{}
 
+	os.Setenv("FOOBARSLICESEP", "itemA;itemB;itemC")
+	expectedSliceSep := []string{"itemA", "itemB", "itemC"}
+	defaultSliceSep := []string{"default"}
+
 	os.Setenv("FOOPARSE", "postgres://user:pass@database.example.com:5432/mydb")
 	expectedFooParse := "database.example.com"
 	defaultFooParse := "foobar"
@@ -59,14 +64,16 @@ func Test_struct_types_os_env(t *testing.T) {
 	SetBool("FOOBARBOOL", defaultBool, "help text for FoobarBool")
 	SetMap("FOOBARMAP", defaultMap, "help text FoobarMap")
 	SetSlice("FOOBARSLICE", defaultSlice, "help text for FoobarSlice", ",")
+	SetSlice("FOOBARSLICESEP", defaultSliceSep, "help text for FoobarSliceSep", ";")
 
 	config := &ExampleConfig{
-		Foobar:      defaultStr,
-		FoobarInt:   defaultInt,
-		FoobarBool:  defaultBool,
-		FoobarMap:   defaultMap,
-		FoobarSlice: defaultSlice,
-		FooParse:    defaultFooParse,
+		Foobar:         defaultStr,
+		FoobarInt:      defaultInt,
+		FoobarBool:     defaultBool,
+		FoobarMap:      defaultMap,
+		FoobarSlice:    defaultSlice,
+		FoobarSliceSep: defaultSliceSep,
+		FooParse:       defaultFooParse,
 	}
 
 	ParseTo(config)
@@ -81,6 +88,9 @@ func Test_struct_types_os_env(t *testing.T) {
 
 	if GetBool("FOOBARBOOL") != expectedBool {
 		t.Error(GetBool("FOOBARBOOL"), " != ", expectedBool)
+	}
+	if !reflect.DeepEqual(GetSlice("FOOBARSLICESEP"), expectedSliceSep) {
+		t.Error(GetSlice("FOOBARSLICESEP"), " != ", expectedSliceSep)
 	}
 
 	if !reflect.DeepEqual(GetMap("FOOBARMAP"), expectedMap) {
@@ -109,6 +119,10 @@ func Test_struct_types_os_env(t *testing.T) {
 
 	if !reflect.DeepEqual(config.FoobarSlice, expectedSlice) {
 		t.Error(config.FoobarSlice, " != ", expectedSlice)
+	}
+
+	if !reflect.DeepEqual(config.FoobarSliceSep, expectedSliceSep) {
+		t.Error(config.FoobarSliceSep, " != ", expectedSliceSep)
 	}
 
 	if config.FooParse != expectedFooParse {
