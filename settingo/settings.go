@@ -18,18 +18,22 @@ func truthiness(s string) bool {
 }
 
 type Settings struct {
-	msg         map[string]string
-	VarString   map[string]string
-	VarInt      map[string]int
-	VarBool     map[string]bool
-	VarMap      map[string]map[string][]string
-	VarSlice    map[string][]string
-	VarSliceSep map[string]string
-	Parsers     map[string]func(string) string
-	ParsersInt  map[string]func(int) int
+	msg              map[string]string
+	VarString        map[string]string
+	VarInt           map[string]int
+	VarBool          map[string]bool
+	VarMap           map[string]map[string][]string
+	VarSlice         map[string][]string
+	VarSliceSep      map[string]string
+	Parsers          map[string]func(string) string
+	ParsersInt       map[string]func(int) int
+	ContextualCasing bool
 }
 
 func (s *Settings) Set(flagName, defaultVar, message string) {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarString[flagName] = defaultVar
 }
@@ -39,16 +43,25 @@ func (s *Settings) SetString(flagName, defaultVar, message string) {
 }
 
 func (s *Settings) SetInt(flagName string, defaultVar int, message string) {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarInt[flagName] = defaultVar
 }
 
 func (s *Settings) SetBool(flagName string, defaultVar bool, message string) {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarBool[flagName] = defaultVar
 }
 
 func (s *Settings) SetMap(flagName string, defaultVar map[string][]string, message string) {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarMap[flagName] = defaultVar
 }
@@ -57,40 +70,64 @@ func (s *Settings) SetSlice(flagName string, defaultVar []string, message string
 	if sep == "" {
 		sep = ","
 	}
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarSlice[flagName] = defaultVar
 	s.VarSliceSep[flagName] = sep
 }
 
 func (s *Settings) SetParsed(flagName, defaultVar, message string, parserFunc func(string) string) {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarString[flagName] = defaultVar
 	s.Parsers[flagName] = parserFunc
 }
 
 func (s *Settings) SetParsedInt(flagName, defaultVar, message string, parserFunc func(int) int) {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	s.msg[flagName] = message
 	s.VarString[flagName] = defaultVar
 	s.ParsersInt[flagName] = parserFunc
 }
 
 func (s Settings) Get(flagName string) string {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	return s.VarString[flagName]
 }
 
 func (s Settings) GetInt(flagName string) int {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	return s.VarInt[flagName]
 }
 
 func (s Settings) GetBool(flagName string) bool {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	return s.VarBool[flagName]
 }
 
 func (s Settings) GetMap(flagName string) map[string][]string {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	return s.VarMap[flagName]
 }
 
 func (s Settings) GetSlice(flagName string) []string {
+	if s.ContextualCasing {
+		flagName = strings.ToLower(flagName)
+	}
 	return s.VarSlice[flagName]
 }
 
@@ -149,15 +186,22 @@ func (s *Settings) HandleCMDLineInput() {
 }
 
 func (s *Settings) HandleOSInput() {
-
 	for key := range s.VarString {
-		varEnv, found := os.LookupEnv(key)
+		lookupKey := key
+		if s.ContextualCasing {
+			lookupKey = strings.ToUpper(key)
+		}
+		varEnv, found := os.LookupEnv(lookupKey)
 		if found {
 			s.VarString[key] = varEnv
 		}
 	}
 	for key := range s.VarInt {
-		varEnv, found := os.LookupEnv(key)
+		lookupKey := key
+		if s.ContextualCasing {
+			lookupKey = strings.ToUpper(key)
+		}
+		varEnv, found := os.LookupEnv(lookupKey)
 		if found {
 			if num, err := strconv.Atoi(varEnv); err == nil {
 				s.VarInt[key] = num
@@ -165,19 +209,31 @@ func (s *Settings) HandleOSInput() {
 		}
 	}
 	for key := range s.VarBool {
-		varEnv, found := os.LookupEnv(key)
+		lookupKey := key
+		if s.ContextualCasing {
+			lookupKey = strings.ToUpper(key)
+		}
+		varEnv, found := os.LookupEnv(lookupKey)
 		if found {
 			s.VarBool[key] = truthiness(varEnv)
 		}
 	}
 	for key := range s.VarMap {
-		varEnv, found := os.LookupEnv(key)
+		lookupKey := key
+		if s.ContextualCasing {
+			lookupKey = strings.ToUpper(key)
+		}
+		varEnv, found := os.LookupEnv(lookupKey)
 		if found {
 			s.VarMap[key] = ParseLineToMap(varEnv)
 		}
 	}
 	for key := range s.VarSlice {
-		varEnv, found := os.LookupEnv(key)
+		lookupKey := key
+		if s.ContextualCasing {
+			lookupKey = strings.ToUpper(key)
+		}
+		varEnv, found := os.LookupEnv(lookupKey)
 		if found {
 			s.VarSlice[key] = strings.Split(varEnv, s.VarSliceSep[key])
 		}
@@ -222,7 +278,7 @@ func (s *Settings) LoadStruct(cfg interface{}) {
 				for i := 0; i < value.Len(); i++ {
 					slice[i] = value.Index(i).String()
 				}
-				s.SetSlice(name, slice, help, s.VarSliceSep[name])
+				s.SetSlice(name, slice, help, s.VarSliceSep[strings.ToLower(name)])
 			}
 		case reflect.Map:
 			if value.Type().Key().Kind() == reflect.String &&
