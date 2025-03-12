@@ -24,15 +24,16 @@ package settingo
 //		println("Output directory:", outputDir)
 //	}
 var SETTINGS = Settings{
-	msg:         make(map[string]string),
-	VarString:   make(map[string]string),
-	VarInt:      make(map[string]int),
-	VarMap:      make(map[string]map[string][]string),
-	VarSlice:    make(map[string][]string),
-	VarSliceSep: make(map[string]string),
-	Parsers:     make(map[string]func(string) string),
-	ParsersInt:  make(map[string]func(int) int),
-	VarBool:     make(map[string]bool),
+	msg:              make(map[string]string),
+	VarString:        make(map[string]string),
+	VarInt:           make(map[string]int),
+	VarMap:           make(map[string]map[string][]string),
+	VarSlice:         make(map[string][]string),
+	VarSliceSep:      make(map[string]string),
+	Parsers:          make(map[string]func(string) string),
+	ParsersInt:       make(map[string]func(int) int),
+	VarBool:          make(map[string]bool),
+	ContextualCasing: true,
 }
 
 // Get retrieves the current string value of a registered string setting from the global SETTINGS instance.
